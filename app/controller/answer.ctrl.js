@@ -1,50 +1,13 @@
-const review = require("../model/review");
+const answer = require("../model/answer");
+const formidable = require("formidable");
+// const conf = require("../config/upload.config");
+// const { uploadfile } = require("../middlewares");
 
 
-
-exports.insertReview = async (param, res) => {
+exports.insertQuestionAnswer = async (param, res) => {
     var req = param.body;
     req.userId = param.userId;
-    var ins = await review.insertReview(req);
-    if (ins.affectedRows > 0) {
-        return res.status(200).json({
-            isSuccess: true,
-            message: "Success insert data"
-        });
-    }
-    else {
-        return res.status(500).json({
-            isSuccess: false,
-            message: "Failed insert data"
-        });
-    }
-}
-exports.getAllReviewbyProduct = async (param, res) => {
-    var rtn = {};
-    try {
-        var items = await review.getAllReviewbyProduct(param.body);
-
-        status = 200;
-        rtn.isSuccess = true;
-        rtn.message = "Success";
-        rtn.data = items;
-        rtn.total = items.total
-        return res.status(status).json(rtn);
-    }
-    catch (error) {
-        rtn.isSuccess = false,
-            rtn.status = 500;
-        rtn.message = "There Are somethign Wrong in Our System" + error
-        return res.status(500).json(rtn);
-    }
-
-};
-
-
-exports.countViewReview = async (param, res) => {
-    var req = param.body;
-    req.userId = param.userId;
-    var ins = await review.countView(req);
+    var ins = await answer.insertQuestionAnswer(req);
     if (ins.affectedRows > 0) {
         return res.status(200).json({
             isSuccess: true,
@@ -59,19 +22,36 @@ exports.countViewReview = async (param, res) => {
     }
 }
 
-exports.countUpvoteReview = async (param, res) => {
+
+exports.countViewAnswer = async (param, res) => {
     var req = param.body;
     req.userId = param.userId;
+    var ins = await answer.countViews(req);
+    if (ins.affectedRows > 0) {
+        return res.status(200).json({
+            isSuccess: true,
+            message: "Success insert data"
+        });
+    }
+    else {
+        return res.status(500).json({
+            isSuccess: false,
+            message: "Failed insert data"
+        });
+    }
+}
+
+exports.countUpvoteQuestionAnswer = async (param, res) => {
     var req = param.body;
     req.userId = param.userId;
-    var hasCounted = await review.isUserhasCountedvote(req);
+    var hasCounted = await answer.isUserhasCountedvote(req);
     if (hasCounted.length > 0) {
         return res.status(200).json({
             isSuccess: false,
             message: "user has been voted"
         });
     } else {
-        var ins = await review.countUpvote(req);
+        var ins = await answer.countUpvote(req);
         if (ins.affectedRows > 0) {
             return res.status(200).json({
                 isSuccess: true,
@@ -85,14 +65,14 @@ exports.countUpvoteReview = async (param, res) => {
             });
         }
     }
-
+<<<<<<< HEAD
 }
 
-
-exports.GetallReviewComments = async (param, res) =>{
-    var rtn= {};
+exports.GetAllQuestionAnswer = async (param, res) => {
+    
+    var rtn = {};
     try {
-        var items = await review.GetallReviewComments(param.body);
+        var items = await answer.getAllQuestionAnswer(param.body);
         rtn = {
             data: items,
             total: items.total,
@@ -106,4 +86,6 @@ exports.GetallReviewComments = async (param, res) =>{
         rtn.message = "There Are somethign Wrong in Our System" + error
         return res.status(500).json(rtn);
     }
+=======
+>>>>>>> a080bc6ce07c656c172c4e3c311618f7dbf6f575
 }

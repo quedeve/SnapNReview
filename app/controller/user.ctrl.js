@@ -8,6 +8,7 @@ const bcrypt = require("bcrypt");
 const config_upload = require("../config/upload.config");
 const conf_paging = require("../config/paging.config");
 const formidable = require("formidable");
+const randomString = require("randomstring");
 
 const from_year = 2019;
 
@@ -396,6 +397,28 @@ exports.forgotPasswordReq = async (param, res) => {
         });
     }
 
+}
+
+exports.forgotPassword = async (param, res) => {
+    try {
+        var req = param.body;
+        if (req.email == undefined || req.email == "") {
+            return res.status(500).json({
+                isSuccess: false,
+                message: "Failed to forgot password, email has null"
+            });
+        }
+        var usr = await users.getAllRecord(req);
+        var randomPassword = randomString.generate();
+        console.log(randomPassword);
+        return res.status(500).json({
+            isSuccess: false,
+            message: "Failed to forgot password, email has null"
+        });
+
+    } catch (error) {
+
+    }
 }
 
 exports.resetPassword = async (param, res) => {

@@ -7,6 +7,7 @@ var express = require('express'),
 
 app.use("*", cors());
 app.use('/pic', express.static('pic'))
+app.use('/Img', express.static('img'))
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 

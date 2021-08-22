@@ -7,10 +7,14 @@ const category = require('./app/controller/category.ctrl');
 // const ticket = require("./app/controller/ticket.ctrl");
 const product = require('./app/controller/product.ctrl');
 const review = require('./app/controller/review.ctrl');
-const { authJwt,dynamiclink } = require("./app/middlewares");
+const question = require('./app/controller/question.ctrl');
+const answer = require('./app/controller/answer.ctrl');
+const comment = require('./app/controller/comment.ctrl')
+const { authJwt, dynamiclink } = require("./app/middlewares");
 const fs = require("fs");
+const { auth } = require('firebase-admin');
 
-module.exports = function(app) {
+module.exports = function (app) {
     app.use(function (req, res, next) {
         res.header(
             "Access-Control-Allow-Headers",
@@ -36,34 +40,66 @@ module.exports = function(app) {
             // response.write("Ok");
             // response.end();
         }
-    );
-    
+        );
+
     // Function for Mobile
     app.post('/user/login', user.loginUser);
     app.post('/user/loginSSO', user.loginUserSSO);
     app.post('/user/register', user.registerUser);
     app.post('/user/logout', [authJwt.isUser], user.logoutUser);
+    app.post('/user/submitProfile', [authJwt.isUser], user.submitProfile);
+<<<<<<< HEAD
+    app.post('/user/forgotPassword', user.forgotPassword);
+=======
+>>>>>>> a080bc6ce07c656c172c4e3c311618f7dbf6f575
 
     app.post('/admin/insertCategory', category.insertCategory);
     app.post('/admin/updateCategory', category.updateCategory);
     app.post('/admin/deleteCategory', category.deleteCategory);
 
-    app.get('/user/getAllParentCategory', category.getAllParentCategory);
-    app.get('/user/getAllSubCategory', category.getAllSubCategory);
-    app.get('/user/getSubCategoryByParentId', category.getSubCategoryByParentId);
+    app.get('/user/getAllParentCategory', [authJwt.isUser], category.getAllParentCategory);
+    app.get('/user/getAllSubCategory', [authJwt.isUser], category.getAllSubCategory);
+    app.get('/user/getSubCategoryByParentId', [authJwt.isUser], category.getSubCategoryByParentId);
 
     // Product
     app.post('/user/insertProduct', [authJwt.isUser], product.insertProduct);
     app.post('/user/countViewProduct', [authJwt.isUser], product.countViewProduct);
-    app.post('/user/countUpvoteProduct',[authJwt.isUser], product.countUpvoteProduct);
-    app.get('/user/getAllProduct', product.getAllProduct);
+    app.post('/user/countUpvoteProduct', [authJwt.isUser], product.countUpvoteProduct);
+    app.get('/user/getAllProduct', [authJwt.isUser], product.getAllProduct);
+    app.post('/user/uploadProductImages', [authJwt.isUser], product.uploadProductImages);
+    app.get('/user/getProductById', [authJwt.isUser], product.getProductbyId)
+    app.get('/user/getProductTopImagesById', [authJwt.isUser], product.getProductTopImagesById);
+    app.get('/user/getAllImageByProductId', [authJwt.isUser], product.getAllImageByProductId);
+    app.post('/user/countProductImageLike', [authJwt.isUser], product.countProductImageLike);
 
     // Review
     app.post('/user/insertReview', [authJwt.isUser], review.insertReview)
     app.get('/user/getAllReviewbyProduct', review.getAllReviewbyProduct);
-    app.post('/user/countViewReview', [authJwt.isUser], review.countViewReview );
+    app.post('/user/countViewReview', [authJwt.isUser], review.countViewReview);
     app.post('/user/countUpvotereview', [authJwt.isUser], review.countUpvoteReview);
+    app.get('/user/GetallReviewComments', [authJwt.isUser], review.GetallReviewComments);
+    // Comment
+
+    app.post('/user/insertQuestionAnswerComment', [authJwt.isUser], comment.insertQuestionAnswerComment);
+    app.post('/user/countUpvoteQuestionAnswerComment', [authJwt.isUser], comment.countUpvoteQuestionAnswerComment);
+    app.get('/user/GetAllComment', [authJwt.isUser], comment.GetAllComment);
+
+    // Question
+    app.post('/user/insertQuestion', [authJwt.isUser], question.insertQuestion);
+    app.post('/user/countViewQuestion', [authJwt.isUser], question.countViewQuestion);
+    app.get('/user/getAllQuestion', [authJwt.isUser], question.getAllQuestion);
     
+
+    // Question Answer
+    app.post('/user/insertQuestionAnswer', [authJwt.isUser], answer.insertQuestionAnswer);
+    app.post('/user/countViewQuestionAnswer', [authJwt.isUser], answer.countViewAnswer);
+    app.post('/user/countUpvoteQuestionAnswer',[authJwt.isUser], answer.countUpvoteQuestionAnswer);
+<<<<<<< HEAD
+    app.get('/user/getAllQuestionAnswer', [authJwt.isUser], answer.GetAllQuestionAnswer)
+=======
+>>>>>>> a080bc6ce07c656c172c4e3c311618f7dbf6f575
+  
+
     // app.post('/user/actionVidComments', [authJwt.isUser], videos.actionVidComments);
     // Function for Web
     app.post('/user/resetPassword', [authJwt.isResetPassword], user.resetPassword);
@@ -71,33 +107,33 @@ module.exports = function(app) {
     // Admin
     app.post('/admin/login', user.loginAdmin);
 
-    app.get("/shareurl/:type/:id", async(req, response) => {
+    app.get("/shareurl/:type/:id", async (req, response) => {
         var prm = req.params;
 
         var type = prm.type;
         var id = prm.id;
         var agent = req.headers['user-agent'];
         var url = "https://pito.com.sg";
-        if(agent.includes("Android") || agent.includes("iPhone") || agent.includes("iPad") || agent.includes("iPod")){
-            url = "pito://"+type+"?"+type+"_id="+id;
+        if (agent.includes("Android") || agent.includes("iPhone") || agent.includes("iPad") || agent.includes("iPod")) {
+            url = "pito://" + type + "?" + type + "_id=" + id;
         }
 
         response.writeHead(200, {
             'Content-Type': 'text/html'
         });
-        response.write("<html><head><title>PITO</title></head><body>Redirect to</body><script>location.replace('"+url+"');</script></html>");
+        response.write("<html><head><title>PITO</title></head><body>Redirect to</body><script>location.replace('" + url + "');</script></html>");
         response.end();
     });
-    
-    app.get('/tes_jwt', [authJwt.isUser], function(req,res){
-        res.json({message : 'Berhasil tes token'});
+
+    app.get('/tes_jwt', [authJwt.isUser], function (req, res) {
+        res.json({ message: 'Berhasil tes token' });
     });
 
-    app.post("/tesf", function(req,res){
+    app.post("/tesf", function (req, res) {
         console.log(req.headers);
         console.log(req.body);
         return res.json({
-            sts : "ok"
+            sts: "ok"
         });
     });
 };
